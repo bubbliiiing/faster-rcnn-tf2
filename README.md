@@ -15,8 +15,7 @@
 | VOC07+12 | [voc_weights.h5](https://github.com/bubbliiiing/faster-rcnn-tf2/releases/download/v1.0/voc_weights.h5) | VOC-Test07 | - | - | 78.0
 
 ### 所需环境
-tensorflow-gpu==1.13.1  
-keras==2.1.5  
+tensorflow-gpu==2.2.0
 
 ### 文件下载
 训练所需的voc_weights.h5可以去百度网盘下载  
