@@ -23,9 +23,9 @@ from utils.anchors import get_anchors
 
 class FRCNN(object):
     _defaults = {
-        "model_path": 'model_data/voc_weights.h5',
-        "classes_path": 'model_data/voc_classes.txt',
-        "confidence": 0.5,
+        "model_path"    : 'model_data/voc_weights.h5',
+        "classes_path"  : 'model_data/voc_classes.txt',
+        "confidence"    : 0.5,
     }
 
     @classmethod
