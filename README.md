@@ -12,7 +12,7 @@
 ## 性能情况
 | 训练数据集 | 权值文件名称 | 测试数据集 | 输入图片大小 | mAP 0.5:0.95 | mAP 0.5 |
 | :-----: | :-----: | :------: | :------: | :------: | :-----: |
-| VOC07+12 | [voc_weights.h5](https://github.com/bubbliiiing/faster-rcnn-tf2/releases/download/v1.0/voc_weights.h5) | VOC-Test07 | - | - | 78.0
+| VOC07+12 | [voc_weights.h5](https://github.com/bubbliiiing/faster-rcnn-tf2/releases/download/v1.0/voc_weights.h5) | VOC-Test07 | - | - | 77.5
 
 ## 所需环境
 tensorflow-gpu==2.2.0
