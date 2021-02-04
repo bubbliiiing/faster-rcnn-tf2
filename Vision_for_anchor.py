@@ -1,6 +1,7 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from tensorflow import keras
+
 from utils.config import Config
 
 config = Config()
