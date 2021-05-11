@@ -3,15 +3,12 @@
 #-------------------------------------------------------------#
 from __future__ import print_function
 
-import numpy as np
-import tensorflow.keras.backend as K
-from tensorflow.keras import backend as K
-from tensorflow.keras import initializers, layers, regularizers
+from tensorflow.keras import layers
+from tensorflow.keras.initializers import RandomNormal
 from tensorflow.keras.layers import (Activation, Add, AveragePooling2D, Conv2D,
                                      Dense, Flatten, Input, InputSpec, Layer, BatchNormalization,
                                      MaxPooling2D, TimeDistributed,
                                      ZeroPadding2D)
-from tensorflow.keras.models import Model
 
 
 def identity_block(input_tensor, kernel_size, filters, stage, block):
@@ -21,15 +18,15 @@ def identity_block(input_tensor, kernel_size, filters, stage, block):
     conv_name_base = 'res' + str(stage) + block + '_branch'
     bn_name_base = 'bn' + str(stage) + block + '_branch'
 
-    x = Conv2D(filters1, (1, 1), name=conv_name_base + '2a')(input_tensor)
+    x = Conv2D(filters1, (1, 1), kernel_initializer=RandomNormal(stddev=0.02), name=conv_name_base + '2a')(input_tensor)
     x = BatchNormalization(trainable=False, name=bn_name_base + '2a')(x)
     x = Activation('relu')(x)
 
-    x = Conv2D(filters2, kernel_size,padding='same', name=conv_name_base + '2b')(x)
+    x = Conv2D(filters2, kernel_size, padding='same', kernel_initializer=RandomNormal(stddev=0.02), name=conv_name_base + '2b')(x)
     x = BatchNormalization(trainable=False, name=bn_name_base + '2b')(x)
     x = Activation('relu')(x)
 
-    x = Conv2D(filters3, (1, 1), name=conv_name_base + '2c')(x)
+    x = Conv2D(filters3, (1, 1), kernel_initializer=RandomNormal(stddev=0.02), name=conv_name_base + '2c')(x)
     x = BatchNormalization(trainable=False, name=bn_name_base + '2c')(x)
 
     x = layers.add([x, input_tensor])
@@ -44,20 +41,20 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2))
     conv_name_base = 'res' + str(stage) + block + '_branch'
     bn_name_base = 'bn' + str(stage) + block + '_branch'
 
-    x = Conv2D(filters1, (1, 1), strides=strides,
+    x = Conv2D(filters1, (1, 1), strides=strides, kernel_initializer=RandomNormal(stddev=0.02),
                name=conv_name_base + '2a')(input_tensor)
     x = BatchNormalization(trainable=False, name=bn_name_base + '2a')(x)
     x = Activation('relu')(x)
 
-    x = Conv2D(filters2, kernel_size, padding='same',
+    x = Conv2D(filters2, kernel_size, padding='same', kernel_initializer=RandomNormal(stddev=0.02),
                name=conv_name_base + '2b')(x)
     x = BatchNormalization(trainable=False, name=bn_name_base + '2b')(x)
     x = Activation('relu')(x)
 
-    x = Conv2D(filters3, (1, 1), name=conv_name_base + '2c')(x)
+    x = Conv2D(filters3, (1, 1), kernel_initializer=RandomNormal(stddev=0.02), name=conv_name_base + '2c')(x)
     x = BatchNormalization(trainable=False, name=bn_name_base + '2c')(x)
 
-    shortcut = Conv2D(filters3, (1, 1), strides=strides,
+    shortcut = Conv2D(filters3, (1, 1), strides=strides, kernel_initializer=RandomNormal(stddev=0.02),
                       name=conv_name_base + '1')(input_tensor)
     shortcut = BatchNormalization(trainable=False, name=bn_name_base + '1')(shortcut)
 

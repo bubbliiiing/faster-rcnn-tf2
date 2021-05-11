@@ -10,7 +10,7 @@ from tensorflow.keras.utils import Progbar
 from tqdm import tqdm
 
 from nets.frcnn import get_model
-from nets.frcnn_training import (Generator, class_loss_cls, class_loss_regr,
+from nets.frcnn_training import (Generator, LossHistory, class_loss_cls, class_loss_regr,
                                  cls_loss, get_img_output_length, smooth_l1)
 from utils.anchors import get_anchors
 from utils.config import Config
@@ -104,6 +104,7 @@ def fit_one_epoch(model_rpn,model_all,epoch,epoch_size,epoch_size_val,gen,genval
             pbar.set_postfix(**{'total' : val_toal_loss / (iteration + 1)})
             pbar.update(1)
 
+    loss_history.append_loss(total_loss/(epoch_size+1), val_toal_loss/(epoch_size_val+1))
     print('Finish Validation')
     print('Epoch:'+ str(epoch+1) + '/' + str(Epoch))
     print('Total Loss: %.4f || Val Loss: %.4f ' % (total_loss/(epoch_size+1),val_toal_loss/(epoch_size_val+1)))
@@ -111,6 +112,7 @@ def fit_one_epoch(model_rpn,model_all,epoch,epoch_size,epoch_size_val,gen,genval
     print('Saving state, iter:', str(epoch+1))
     model_all.save_weights('logs/Epoch%d-Total_Loss%.4f-Val_Loss%.4f.h5'%((epoch+1),total_loss/(epoch_size+1),val_toal_loss/(epoch_size_val+1)))
     return 
+    
 #----------------------------------------------------#
 #   检测精度mAP和pr曲线计算参考视频
 #   https://www.bilibili.com/video/BV1zE411u7Vw
@@ -145,6 +147,7 @@ if __name__ == "__main__":
     #   训练参数的设置
     #--------------------------------------------#
     callback = tf.summary.create_file_writer("logs")
+    loss_history = LossHistory("logs/")
 
     annotation_path = '2007_train.txt'
     #----------------------------------------------------------------------#
@@ -194,6 +197,9 @@ if __name__ == "__main__":
         epoch_size = num_train // Batch_size
         epoch_size_val = num_val // Batch_size
         
+        if epoch_size == 0 or epoch_size_val == 0:
+            raise ValueError("数据集过小，无法进行训练，请扩充数据集。")
+            
         for epoch in range(Init_Epoch, Interval_Epoch):
             fit_one_epoch(model_rpn, model_all, epoch, epoch_size, epoch_size_val, gen, gen_val, Interval_Epoch, callback)
             lr = lr*0.92
@@ -226,6 +232,9 @@ if __name__ == "__main__":
         epoch_size = num_train // Batch_size
         epoch_size_val = num_val // Batch_size
         
+        if epoch_size == 0 or epoch_size_val == 0:
+            raise ValueError("数据集过小，无法进行训练，请扩充数据集。")
+            
         for epoch in range(Interval_Epoch, Epoch):
             fit_one_epoch(model_rpn, model_all, epoch, epoch_size, epoch_size_val, gen, gen_val, Epoch, callback)
             lr = lr*0.92
