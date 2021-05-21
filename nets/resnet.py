@@ -5,8 +5,7 @@ from __future__ import print_function
 
 from tensorflow.keras import layers
 from tensorflow.keras.initializers import RandomNormal
-from tensorflow.keras.layers import (Activation, Add, AveragePooling2D, Conv2D,
-                                     Dense, Flatten, Input, InputSpec, Layer, BatchNormalization,
+from tensorflow.keras.layers import (Activation, Add, AveragePooling2D, Conv2D, BatchNormalization,
                                      MaxPooling2D, TimeDistributed,
                                      ZeroPadding2D)
 

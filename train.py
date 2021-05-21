@@ -1,17 +1,13 @@
-from __future__ import division
-
-import time
-
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.backend as K
 from tensorflow import keras
-from tensorflow.keras.utils import Progbar
 from tqdm import tqdm
 
 from nets.frcnn import get_model
-from nets.frcnn_training import (Generator, LossHistory, class_loss_cls, class_loss_regr,
-                                 cls_loss, get_img_output_length, smooth_l1)
+from nets.frcnn_training import (Generator, LossHistory, class_loss_cls,
+                                 class_loss_regr, cls_loss,
+                                 get_img_output_length, smooth_l1)
 from utils.anchors import get_anchors
 from utils.config import Config
 from utils.roi_helpers import calc_iou
@@ -108,7 +104,6 @@ def fit_one_epoch(model_rpn,model_all,epoch,epoch_size,epoch_size_val,gen,genval
     print('Finish Validation')
     print('Epoch:'+ str(epoch+1) + '/' + str(Epoch))
     print('Total Loss: %.4f || Val Loss: %.4f ' % (total_loss/(epoch_size+1),val_toal_loss/(epoch_size_val+1)))
-
     print('Saving state, iter:', str(epoch+1))
     model_all.save_weights('logs/Epoch%d-Total_Loss%.4f-Val_Loss%.4f.h5'%((epoch+1),total_loss/(epoch_size+1),val_toal_loss/(epoch_size_val+1)))
     return 
@@ -172,18 +167,19 @@ if __name__ == "__main__":
     #   提示OOM或者显存不足请调小Batch_size
     #------------------------------------------------------#
     if True:
-        lr = 1e-4
-        Batch_size = 2
-        Init_Epoch = 0
-        Interval_Epoch = 50
+        lr              = 1e-4
+        Batch_size      = 2
+        Init_Epoch      = 0
+        Interval_Epoch  = 50
         
         model_rpn.compile(
-            loss={
+            loss = {
                 'classification': cls_loss(),
                 'regression'    : smooth_l1()
             }, optimizer=keras.optimizers.Adam(lr=lr)
         )
-        model_all.compile(loss={
+        model_all.compile(
+            loss = {
                 'classification'                        : cls_loss(),
                 'regression'                            : smooth_l1(),
                 'dense_class_{}'.format(NUM_CLASSES)    : class_loss_cls,
@@ -191,11 +187,11 @@ if __name__ == "__main__":
             }, optimizer=keras.optimizers.Adam(lr=lr)
         )
 
-        gen = Generator(bbox_util, lines[:num_train], NUM_CLASSES, Batch_size, input_shape=[input_shape[0], input_shape[1]]).generate()
-        gen_val = Generator(bbox_util, lines[num_train:], NUM_CLASSES, Batch_size, input_shape=[input_shape[0], input_shape[1]]).generate()
+        gen             = Generator(bbox_util, lines[:num_train], NUM_CLASSES, Batch_size, input_shape=[input_shape[0], input_shape[1]]).generate()
+        gen_val         = Generator(bbox_util, lines[num_train:], NUM_CLASSES, Batch_size, input_shape=[input_shape[0], input_shape[1]]).generate()
 
-        epoch_size = num_train // Batch_size
-        epoch_size_val = num_val // Batch_size
+        epoch_size      = num_train // Batch_size
+        epoch_size_val  = num_val // Batch_size
         
         if epoch_size == 0 or epoch_size_val == 0:
             raise ValueError("数据集过小，无法进行训练，请扩充数据集。")
@@ -207,30 +203,31 @@ if __name__ == "__main__":
             K.set_value(model_all.optimizer.lr, lr)
 
     if True:
-        lr = 1e-5
-        Batch_size = 2
-        Interval_Epoch = 50
-        Epoch = 100
+        lr              = 1e-5
+        Batch_size      = 2
+        Interval_Epoch  = 50
+        Epoch           = 100
         
         model_rpn.compile(
-            loss={
+            loss = {
                 'classification': cls_loss(),
                 'regression'    : smooth_l1()
             }, optimizer=keras.optimizers.Adam(lr=lr)
         )
-        model_all.compile(loss={
+        model_all.compile(
+            loss = {
                 'classification'                        : cls_loss(),
                 'regression'                            : smooth_l1(),
                 'dense_class_{}'.format(NUM_CLASSES)    : class_loss_cls,
                 'dense_regress_{}'.format(NUM_CLASSES)  : class_loss_regr(NUM_CLASSES-1)
             }, optimizer=keras.optimizers.Adam(lr=lr)
         )
-        
-        gen = Generator(bbox_util, lines[:num_train], NUM_CLASSES, Batch_size, input_shape=[input_shape[0], input_shape[1]]).generate()
-        gen_val = Generator(bbox_util, lines[num_train:], NUM_CLASSES, Batch_size, input_shape=[input_shape[0], input_shape[1]]).generate()
 
-        epoch_size = num_train // Batch_size
-        epoch_size_val = num_val // Batch_size
+        gen             = Generator(bbox_util, lines[:num_train], NUM_CLASSES, Batch_size, input_shape=[input_shape[0], input_shape[1]]).generate()
+        gen_val         = Generator(bbox_util, lines[num_train:], NUM_CLASSES, Batch_size, input_shape=[input_shape[0], input_shape[1]]).generate()
+
+        epoch_size      = num_train // Batch_size
+        epoch_size_val  = num_val // Batch_size
         
         if epoch_size == 0 or epoch_size_val == 0:
             raise ValueError("数据集过小，无法进行训练，请扩充数据集。")

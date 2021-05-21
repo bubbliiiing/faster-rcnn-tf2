@@ -1,6 +1,4 @@
-import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
 from tensorflow import keras
 
 from utils.config import Config

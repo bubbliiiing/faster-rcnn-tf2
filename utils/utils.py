@@ -6,7 +6,7 @@ from PIL import Image
 
 
 class BBoxUtility(object):
-    def __init__(self, overlap_threshold=0.7, ignore_threshold=0.3, rpn_pre_boxes=6000, rpn_nms=0.7, classifier_nms=0.3, top_k=300):
+    def __init__(self, overlap_threshold=0.7, ignore_threshold=0.3, rpn_pre_boxes=12000, rpn_nms=0.7, classifier_nms=0.3, top_k=300):
         self.overlap_threshold  = overlap_threshold
         self.ignore_threshold   = ignore_threshold
         self.rpn_pre_boxes      = rpn_pre_boxes

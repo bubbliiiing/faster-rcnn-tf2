@@ -3,8 +3,6 @@
 #   具体视频教程可查看
 #   https://www.bilibili.com/video/BV1zE411u7Vw
 #----------------------------------------------------#
-import copy
-import math
 import os
 
 import numpy as np
@@ -16,7 +14,6 @@ from tqdm import tqdm
 from frcnn import FRCNN
 from nets.frcnn_training import get_new_img_size
 from utils.anchors import get_anchors
-from utils.utils import BBoxUtility
 
 '''
 这里设置的门限值较低是因为计算map需要用到不同门限条件下的Recall和Precision值。
