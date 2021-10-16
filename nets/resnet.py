@@ -1,13 +1,11 @@
 #-------------------------------------------------------------#
 #   ResNet50的网络部分
 #-------------------------------------------------------------#
-from __future__ import print_function
-
 from tensorflow.keras import layers
 from tensorflow.keras.initializers import RandomNormal
-from tensorflow.keras.layers import (Activation, Add, AveragePooling2D, Conv2D, BatchNormalization,
-                                     MaxPooling2D, TimeDistributed,
-                                     ZeroPadding2D)
+from tensorflow.keras.layers import (Activation, Add, AveragePooling2D,
+                                     BatchNormalization, Conv2D, MaxPooling2D,
+                                     TimeDistributed, ZeroPadding2D)
 
 
 def identity_block(input_tensor, kernel_size, filters, stage, block):
@@ -142,15 +140,14 @@ def conv_block_td(input_tensor, kernel_size, filters, stage, block, strides=(2, 
     x = Activation('relu')(x)
     return x
 
-
-def classifier_layers(x):
-    # num_rois, 14, 14, 1024 -> num_rois, 7, 7, 2048
+def resnet50_classifier_layers(x):
+    # batch_size, num_rois, 14, 14, 1024 -> batch_size, num_rois, 7, 7, 2048
     x = conv_block_td(x, 3, [512, 512, 2048], stage=5, block='a', strides=(2, 2))
-    # num_rois, 7, 7, 2048 -> num_rois, 7, 7, 2048
+    # batch_size, num_rois, 7, 7, 2048 -> batch_size, num_rois, 7, 7, 2048
     x = identity_block_td(x, 3, [512, 512, 2048], stage=5, block='b')
-    # num_rois, 7, 7, 2048 -> num_rois, 7, 7, 2048
+    # batch_size, num_rois, 7, 7, 2048 -> batch_size, num_rois, 7, 7, 2048
     x = identity_block_td(x, 3, [512, 512, 2048], stage=5, block='c')
-    # num_rois, 7, 7, 2048 -> num_rois, 1, 1, 2048
+    # batch_size, num_rois, 7, 7, 2048 -> batch_size, num_rois, 1, 1, 2048
     x = TimeDistributed(AveragePooling2D((7, 7)), name='avg_pool')(x)
 
     return x
