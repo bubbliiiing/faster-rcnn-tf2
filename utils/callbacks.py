@@ -1,6 +1,8 @@
 import os
 
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 import scipy.signal
 from tensorflow import keras
 
