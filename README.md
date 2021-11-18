@@ -16,16 +16,16 @@
 ## 性能情况
 | 训练数据集 | 权值文件名称 | 测试数据集 | 输入图片大小 | mAP 0.5:0.95 | mAP 0.5 |
 | :-----: | :-----: | :------: | :------: | :------: | :-----: |
-| VOC07+12 | [voc_weights_resnet.h5](https://github.com/bubbliiiing/faster-rcnn-tf2/releases/download/v1.0/voc_weights_resnet.h5) | VOC-Test07 | - | - | 77.5
-| VOC07+12 | [voc_weights_vgg.h5](https://github.com/bubbliiiing/faster-rcnn-tf2/releases/download/v1.0/voc_weights_vgg.h5) | VOC-Test07 | - | - | 76.3
+| VOC07+12 | [voc_weights_resnet.h5](https://github.com/bubbliiiing/faster-rcnn-tf2/releases/download/v1.0/voc_weights_resnet.h5) | VOC-Test07 | - | - | 81.16
+| VOC07+12 | [voc_weights_vgg.h5](https://github.com/bubbliiiing/faster-rcnn-tf2/releases/download/v1.0/voc_weights_vgg.h5) | VOC-Test07 | - | - | 76.28
 
 ## 所需环境
 tensorflow-gpu==2.2.0
 
 ## 文件下载
 训练所需的voc_weights_resnet.h5、voc_weights_vgg.h5和主干的权值可以去百度网盘下载  
-链接: https://pan.baidu.com/s/1oeZPksruWSpRO5mn80TSzw    
-提取码: thqs    
+链接: https://pan.baidu.com/s/1ACymiz3m9Kx0L8WXIDX_dg     
+提取码: jwvs    
 
 VOC数据集下载地址如下，里面已经包括了训练集、测试集、验证集（与测试集一样），无需再次划分：  
 链接: https://pan.baidu.com/s/1YuBbBKxm2FGgTU5OfaeC5A    
