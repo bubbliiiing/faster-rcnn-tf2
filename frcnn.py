@@ -126,7 +126,8 @@ class FRCNN(object):
         #---------------------------------------------------------#
         #   获得rpn网络预测结果和base_layer
         #---------------------------------------------------------#
-        rpn_pred        = self.model_rpn.predict(image_data)
+        rpn_pred        = self.model_rpn(image_data)
+        rpn_pred        = [x.numpy() for x in rpn_pred]
         #---------------------------------------------------------#
         #   生成先验框并解码
         #---------------------------------------------------------#
@@ -136,7 +137,8 @@ class FRCNN(object):
         #-------------------------------------------------------------#
         #   利用建议框获得classifier网络预测结果
         #-------------------------------------------------------------#
-        classifier_pred = self.model_classifier.predict([rpn_pred[2], rpn_results[:, :, [1, 0, 3, 2]]])
+        classifier_pred = self.model_classifier([rpn_pred[2], rpn_results[:, :, [1, 0, 3, 2]]])
+        classifier_pred = [x.numpy() for x in classifier_pred]
         #-------------------------------------------------------------#
         #   利用classifier的预测结果对建议框进行解码，获得预测框
         #-------------------------------------------------------------#
@@ -212,7 +214,8 @@ class FRCNN(object):
         #---------------------------------------------------------#
         #   获得rpn网络预测结果和base_layer
         #---------------------------------------------------------#
-        rpn_pred        = self.model_rpn.predict(image_data)
+        rpn_pred        = self.model_rpn(image_data)
+        rpn_pred        = [x.numpy() for x in rpn_pred]
         #---------------------------------------------------------#
         #   生成先验框并解码
         #---------------------------------------------------------#
@@ -222,7 +225,8 @@ class FRCNN(object):
         #-------------------------------------------------------------#
         #   利用建议框获得classifier网络预测结果
         #-------------------------------------------------------------#
-        classifier_pred = self.model_classifier.predict([rpn_pred[2], rpn_results[:, :, [1, 0, 3, 2]]])
+        classifier_pred = self.model_classifier([rpn_pred[2], rpn_results[:, :, [1, 0, 3, 2]]])
+        classifier_pred = [x.numpy() for x in classifier_pred]
         #-------------------------------------------------------------#
         #   利用classifier的预测结果对建议框进行解码，获得预测框
         #-------------------------------------------------------------#
@@ -233,7 +237,8 @@ class FRCNN(object):
             #---------------------------------------------------------#
             #   获得rpn网络预测结果和base_layer
             #---------------------------------------------------------#
-            rpn_pred        = self.model_rpn.predict(image_data)
+            rpn_pred        = self.model_rpn(image_data)
+            rpn_pred        = [x.numpy() for x in rpn_pred]
             #---------------------------------------------------------#
             #   生成先验框并解码
             #---------------------------------------------------------#
@@ -244,7 +249,8 @@ class FRCNN(object):
             #-------------------------------------------------------------#
             #   利用建议框获得classifier网络预测结果
             #-------------------------------------------------------------#
-            classifier_pred = self.model_classifier.predict([rpn_pred[2], temp_ROIs])
+            classifier_pred = self.model_classifier([rpn_pred[2], temp_ROIs])
+            classifier_pred = [x.numpy() for x in classifier_pred]
             #-------------------------------------------------------------#
             #   利用classifier的预测结果对建议框进行解码，获得预测框
             #-------------------------------------------------------------#
@@ -278,7 +284,8 @@ class FRCNN(object):
         #---------------------------------------------------------#
         #   获得rpn网络预测结果和base_layer
         #---------------------------------------------------------#
-        rpn_pred        = self.model_rpn.predict(image_data)
+        rpn_pred        = self.model_rpn(image_data)
+        rpn_pred        = [x.numpy() for x in rpn_pred]
         #---------------------------------------------------------#
         #   生成先验框并解码
         #---------------------------------------------------------#
@@ -288,7 +295,8 @@ class FRCNN(object):
         #-------------------------------------------------------------#
         #   利用建议框获得classifier网络预测结果
         #-------------------------------------------------------------#
-        classifier_pred = self.model_classifier.predict([rpn_pred[2], rpn_results[:, :, [1, 0, 3, 2]]])
+        classifier_pred = self.model_classifier([rpn_pred[2], rpn_results[:, :, [1, 0, 3, 2]]])
+        classifier_pred = [x.numpy() for x in classifier_pred]
         #-------------------------------------------------------------#
         #   利用classifier的预测结果对建议框进行解码，获得预测框
         #-------------------------------------------------------------#
