@@ -16,10 +16,7 @@ from utils.utils import get_classes
 from utils.utils_bbox import BBoxUtility
 from utils.utils_fit import fit_one_epoch
 
-gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
-for gpu in gpus:
-    tf.config.experimental.set_memory_growth(gpu, True)
-    
+
 '''
 训练自己的目标检测模型一定需要注意以下几点：
 1、训练前仔细检查自己的格式是否满足要求，该库要求数据集格式为VOC格式，需要准备好的内容有输入图片和标签
@@ -42,6 +39,12 @@ for gpu in gpus:
    这些都是经验上，只能靠各位同学多查询资料和自己试试了。
 '''  
 if __name__ == "__main__":
+    #---------------------------------------------------------------------#
+    #   train_gpu   训练用到的GPU
+    #               默认为第一张卡、双卡为[0, 1]、三卡为[0, 1, 2]
+    #               在使用多GPU时，每个卡上的batch为总batch除以卡的数量。
+    #---------------------------------------------------------------------#
+    train_gpu       = [0, 1]
     #---------------------------------------------------------------------#
     #   classes_path    指向model_data下的txt，与自己训练的数据集相关 
     #                   训练前一定要修改classes_path，使其对应自己的数据集
@@ -190,6 +193,22 @@ if __name__ == "__main__":
     train_annotation_path   = '2007_train.txt'
     val_annotation_path     = '2007_val.txt'
 
+    #------------------------------------------------------#
+    #   设置用到的显卡
+    #------------------------------------------------------#
+    os.environ["CUDA_VISIBLE_DEVICES"]  = ','.join(str(x) for x in train_gpu)
+    ngpus_per_node                      = len(train_gpu)
+    
+    gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
+    for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
+
+    if ngpus_per_node > 1:
+        strategy = tf.distribute.MirroredStrategy()
+    else:
+        strategy = None
+    print('Number of devices: {}'.format(ngpus_per_node))
+
     #----------------------------------------------------#
     #   获取classes和anchor
     #----------------------------------------------------#
@@ -197,16 +216,25 @@ if __name__ == "__main__":
     num_classes += 1
     anchors = get_anchors(input_shape, backbone, anchors_size)
 
-    K.clear_session()
-    model_rpn, model_all = get_model(num_classes, backbone = backbone)
-    if model_path != '':
-        #------------------------------------------------------#
-        #   载入预训练权重
-        #------------------------------------------------------#
-        print('Load weights {}.'.format(model_path))
-        model_rpn.load_weights(model_path, by_name=True)
-        model_all.load_weights(model_path, by_name=True)
-
+    if ngpus_per_node > 1:
+        with strategy.scope():
+            model_rpn, model_all = get_model(num_classes, backbone = backbone)
+            if model_path != '':
+                #------------------------------------------------------#
+                #   载入预训练权重
+                #------------------------------------------------------#
+                print('Load weights {}.'.format(model_path))
+                model_rpn.load_weights(model_path, by_name=True)
+                model_all.load_weights(model_path, by_name=True)
+    else:
+        model_rpn, model_all = get_model(num_classes, backbone = backbone)
+        if model_path != '':
+            #------------------------------------------------------#
+            #   载入预训练权重
+            #------------------------------------------------------#
+            print('Load weights {}.'.format(model_path))
+            model_rpn.load_weights(model_path, by_name=True)
+            model_all.load_weights(model_path, by_name=True)
 
     time_str        = datetime.datetime.strftime(datetime.datetime.now(),'%Y_%m_%d_%H_%M_%S')
     log_dir         = os.path.join(save_dir, "loss_" + str(time_str))
@@ -240,11 +268,10 @@ if __name__ == "__main__":
         UnFreeze_flag = False
         if Freeze_Train:
             freeze_layers = {'vgg' : 17, 'resnet50' : 141}[backbone]
-            if Freeze_Train:
-                for i in range(freeze_layers): 
-                    if type(model_all.layers[i]) != tf.keras.layers.BatchNormalization:
-                        model_all.layers[i].trainable = False
-                print('Freeze the first {} layers of total {} layers.'.format(freeze_layers, len(model_all.layers)))
+            for i in range(freeze_layers): 
+                if type(model_all.layers[i]) != tf.keras.layers.BatchNormalization:
+                    model_all.layers[i].trainable = False
+            print('Freeze the first {} layers of total {} layers.'.format(freeze_layers, len(model_all.layers)))
 
         #-------------------------------------------------------------------#
         #   如果不冻结训练的话，直接设置batch_size为Unfreeze_batch_size
@@ -264,21 +291,28 @@ if __name__ == "__main__":
             'adam'  : Adam(lr = Init_lr_fit, beta_1 = momentum),
             'sgd'   : SGD(lr = Init_lr_fit, momentum = momentum, nesterov=True)
         }[optimizer_type]
-        model_rpn.compile(
-            loss = {
-                'classification': rpn_cls_loss(),
-                'regression'    : rpn_smooth_l1()
-            }, optimizer = optimizer
-        )
-        model_all.compile(
-            loss = {
-                'classification'                        : rpn_cls_loss(),
-                'regression'                            : rpn_smooth_l1(),
-                'dense_class_{}'.format(num_classes)    : classifier_cls_loss(),
-                'dense_regress_{}'.format(num_classes)  : classifier_smooth_l1(num_classes - 1)
-            }, optimizer = optimizer
-        )
-        
+        if ngpus_per_node > 1:
+            with strategy.scope():
+                model_rpn.compile(
+                    loss = {'classification' : rpn_cls_loss(), 'regression' : rpn_smooth_l1()}, optimizer = optimizer
+                )
+                model_all.compile(
+                    loss = {
+                        'classification' : rpn_cls_loss(), 'regression' : rpn_smooth_l1(),
+                        'dense_class_{}'.format(num_classes) : classifier_cls_loss(), 'dense_regress_{}'.format(num_classes)  : classifier_smooth_l1(num_classes - 1)
+                    }, optimizer = optimizer
+                )
+        else:
+            model_rpn.compile(
+                loss = {'classification' : rpn_cls_loss(), 'regression' : rpn_smooth_l1()}, optimizer = optimizer
+            )
+            model_all.compile(
+                loss = {
+                    'classification' : rpn_cls_loss(), 'regression' : rpn_smooth_l1(),
+                    'dense_class_{}'.format(num_classes) : classifier_cls_loss(), 'dense_regress_{}'.format(num_classes)  : classifier_smooth_l1(num_classes - 1)
+                }, optimizer = optimizer
+            )
+    
         #---------------------------------------#
         #   获得学习率下降的公式
         #---------------------------------------#
@@ -328,22 +362,29 @@ if __name__ == "__main__":
                 for i in range(freeze_layers): 
                     if type(model_all.layers[i]) != tf.keras.layers.BatchNormalization:
                         model_all.layers[i].trainable = True
-                        
-                model_rpn.compile(
-                    loss = {
-                        'classification': rpn_cls_loss(),
-                        'regression'    : rpn_smooth_l1()
-                    }, optimizer = optimizer
-                )
-                model_all.compile(
-                    loss = {
-                        'classification'                        : rpn_cls_loss(),
-                        'regression'                            : rpn_smooth_l1(),
-                        'dense_class_{}'.format(num_classes)    : classifier_cls_loss(),
-                        'dense_regress_{}'.format(num_classes)  : classifier_smooth_l1(num_classes - 1)
-                    }, optimizer = optimizer
-                )
-
+                                
+                if ngpus_per_node > 1:
+                    with strategy.scope():
+                        model_rpn.compile(
+                            loss = {'classification' : rpn_cls_loss(), 'regression' : rpn_smooth_l1()}, optimizer = optimizer
+                        )
+                        model_all.compile(
+                            loss = {
+                                'classification' : rpn_cls_loss(), 'regression' : rpn_smooth_l1(),
+                                'dense_class_{}'.format(num_classes) : classifier_cls_loss(), 'dense_regress_{}'.format(num_classes)  : classifier_smooth_l1(num_classes - 1)
+                            }, optimizer = optimizer
+                        )
+                else:
+                    model_rpn.compile(
+                        loss = {'classification' : rpn_cls_loss(), 'regression' : rpn_smooth_l1()}, optimizer = optimizer
+                    )
+                    model_all.compile(
+                        loss = {
+                            'classification' : rpn_cls_loss(), 'regression' : rpn_smooth_l1(),
+                            'dense_class_{}'.format(num_classes) : classifier_cls_loss(), 'dense_regress_{}'.format(num_classes)  : classifier_smooth_l1(num_classes - 1)
+                        }, optimizer = optimizer
+                    )
+                    
                 epoch_step      = num_train // batch_size
                 epoch_step_val  = num_val // batch_size
 
