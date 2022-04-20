@@ -13,6 +13,7 @@ import numpy as np
 import six
 from PIL import Image
 from tensorflow.keras.applications.imagenet_utils import preprocess_input
+from tensorflow import keras
 
 try:
     import queue
@@ -22,7 +23,7 @@ except ImportError:
 from utils.utils import cvtColor
 
 
-class FRCNNDatasets():
+class FRCNNDatasets(keras.utils.Sequence):
     def __init__(self, annotation_lines, input_shape, anchors, batch_size, num_classes, train, n_sample = 256, ignore_threshold = 0.3, overlap_threshold = 0.7):
         self.annotation_lines   = annotation_lines
         self.length             = len(self.annotation_lines)
