@@ -1,14 +1,14 @@
 import os
 import xml.etree.ElementTree as ET
 
+import tensorflow as tf
 from PIL import Image
 from tqdm import tqdm
 
+from frcnn import FRCNN
 from utils.utils import get_classes
 from utils.utils_map import get_coco_map, get_map
-from frcnn import FRCNN
 
-import tensorflow as tf
 gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
 for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
