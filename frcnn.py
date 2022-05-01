@@ -8,7 +8,8 @@ from tensorflow.keras.applications.imagenet_utils import preprocess_input
 
 import nets.frcnn as frcnn
 from utils.anchors import get_anchors
-from utils.utils import cvtColor, get_classes, get_new_img_size, resize_image
+from utils.utils import (cvtColor, get_classes, get_new_img_size, resize_image,
+                         show_config)
 from utils.utils_bbox import BBoxUtility
 
 
@@ -61,6 +62,7 @@ class FRCNN(object):
     #---------------------------------------------------#
     def __init__(self, **kwargs):
         self.__dict__.update(self._defaults)
+        show_config(**self._defaults)
         for name, value in kwargs.items():
             setattr(self, name, value)
         #---------------------------------------------------#
