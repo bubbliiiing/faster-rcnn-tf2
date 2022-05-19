@@ -12,7 +12,7 @@ def write_log(callback, names, logs, batch_no):
             tf.summary.scalar(name,value,step=batch_no)
             callback.flush()
 
-def fit_one_epoch(model_rpn, model_all, loss_history, callback, epoch, epoch_step, epoch_step_val, gen, gen_val, Epoch, anchors, bbox_util, roi_helper, save_period, save_dir):
+def fit_one_epoch(model_rpn, model_all, loss_history, eval_callback, callback, epoch, epoch_step, epoch_step_val, gen, gen_val, Epoch, anchors, bbox_util, roi_helper, save_period, save_dir):
     total_loss = 0
     rpn_loc_loss = 0
     rpn_cls_loss = 0
@@ -85,6 +85,7 @@ def fit_one_epoch(model_rpn, model_all, loss_history, callback, epoch, epoch_ste
 
     logs = {'loss': total_loss / epoch_step, 'val_loss': val_loss / epoch_step_val}
     loss_history.on_epoch_end([], logs)
+    eval_callback.on_epoch_end(epoch, logs)
     print('Epoch:'+ str(epoch+1) + '/' + str(Epoch))
     print('Total Loss: %.3f || Val Loss: %.3f ' % (total_loss / epoch_step, val_loss / epoch_step_val))
     
